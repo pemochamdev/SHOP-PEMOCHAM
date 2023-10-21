@@ -16,7 +16,7 @@ urlpatterns = [
 
     # from contrib.auth.views
     path('login/', auth_views.LoginView.as_view(), name='login'),    
-    path('log-out/', auth_views.LogoutView.as_view(), name='log-out'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('passwordreset/', auth_views.PasswordResetView.as_view(template_name='registration/password_reset_form.html'), name='password_reset'),
     path('passwordreset/done', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
     path('passwordreset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),

@@ -8,6 +8,7 @@ from core.models import Item, ItemOrder, Order
 
 class HomeView(ListView):
     model = Item
+    paginate_by = 4
     template_name = 'home.html'
 
 

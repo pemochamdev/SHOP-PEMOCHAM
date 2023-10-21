@@ -1626,7 +1626,10 @@ a.text-light:hover, a.text-light:focus {
     background-attachment: fixed; }
   .view img, .view video {
     position: relative;
-    display: block; }
+    display: block; 
+    width: 300px;
+    height: 300px;
+  }
   .view video.video-intro {
     top: 50%;
     left: 50%;
