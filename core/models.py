@@ -2,6 +2,8 @@ from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
 
+from django_countries.fields import CountryField
+
 
 CATEGORY_CHOICES = (
     ('S','Shirt'),
@@ -14,6 +16,12 @@ LABEL_CHOICES = (
     ('S', 'secondary'),
     ('D', 'danger')
 )
+
+PAYMENT_CHOICES = (
+    ('p','Paypal'),
+    ('s','Stripe'),
+)
+
 
 class Item(models.Model):
     title = models.CharField(max_length=100, verbose_name='Titre')
@@ -78,6 +86,13 @@ class Order(models.Model):
     start_date = models.DateTimeField(auto_now_add=True)
     ordered_date = models.DateTimeField()
     ordered = models.BooleanField(default=False)
+    billing_address = models.ForeignKey(
+        'BillingAddress',
+        on_delete=models.SET_NULL,
+        related_name='billing_address',
+        blank=True,
+        null=True
+    )
 
     def get_total(self):
         total = 0
@@ -85,4 +100,37 @@ class Order(models.Model):
             total += order_item.get_final_price()
         return total
 
+
+
+class BillingAddress(models.Model):
+    user = models.ForeignKey(
+        User,
+        related_name='user_b_a', 
+        on_delete=models.CASCADE
+    )
+    streep_address = models.CharField(
+        max_length=100
+    )
+    appartment_address = models.CharField(
+        max_length=100
+    )
+    country = CountryField(
+        multiple = True
+    )
+    zip = models.CharField(
+        max_length=100
+    )
+    # same_shipping_address = models.BooleanField(
+    #     default=False
+    # )
+    # save_info = models.BooleanField(
+    #     default=False
+    # )
+    payment_option = models.CharField(
+        max_length=1,
+        choices=PAYMENT_CHOICES
+    )
+
+    def __str__(self):
+        return self.user.username
     

@@ -7,7 +7,8 @@ from django.contrib import messages
 from django.views.generic import DetailView, ListView, View
 
 
-from core.models import Item, ItemOrder, Order
+from core.models import Item, ItemOrder, Order, BillingAddress
+from core.forms import CheckoutForm
 
 class HomeView(ListView):
     model = Item
@@ -137,6 +138,61 @@ def remove_single_item_from_cart(request, slug):
 
 
 
-def checkout(request):
-    return render(request, 'checkout.html')
+class CheckoutView(View):
+    def get(self, *args, **kwargs):
+        template_name = 'checkout.html'
 
+        form = CheckoutForm()
+        context = {
+            'form':form
+        }
+        return render(self.request, template_name,context)
+
+    
+    
+    def post(self, *args, **kwargs):
+        template_name = 'checkout.html'
+        
+        form = CheckoutForm(self.request.POST or None)
+        print(self.request.POST)
+        try:
+            order = Order.objects.get(user=self.request.user, ordered=False)
+            if form.is_valid():
+                print(form.cleaned_data)
+                print("Form is valid")
+                streep_address = form.cleaned_data.get('streep_address')
+                appartment_address = form.cleaned_data.get('appartment_address')
+                country = form.cleaned_data.get('country')
+                zip = form.cleaned_data.get('zip')
+                # TODO: add the functionality for these field
+                # same_shipping_address = form.cleaned_data.get('same_shipping_address')
+                # save_info = form.cleaned_data.get('save_info')
+                payment_option = form.cleaned_data.get('payment_option')
+                billing_address = BillingAddress(
+                    user=self.request.user,
+                    streep_address=streep_address,
+                    appartment_address=appartment_address,
+                    country=country,
+                    zip=zip,
+                             
+                )
+                billing_address.save()
+                order.billing_address = billing_address
+                order.save()
+                # TODO: add the rediect to the selected payment option
+                
+                return redirect('checkout')
+            messages.warning(self.request, 'Failed chechout')                
+            context = {
+                'form':form,
+                'object':order,
+            }
+            return render(self.request, template_name, context)
+          
+            
+        except ObjectDoesNotExist:
+            messages.error(self.request, "You do not have an active order")
+            return redirect('order-summary')
+
+        
+       
